@@ -60,13 +60,31 @@ if efek_final != "Tanpa Efek (Polos/Clean)" and efek_final.strip() != "":
 
 st.write("---")
 
-# Bagian 4: Pilihan Jenis Prompt
-st.subheader("4. Pilih Jenis Prompt")
+# Bagian 4: Opsi Sudut Pandang (Angle)
+st.subheader("4. Opsi Sudut Pandang (Angle) Produk")
+pilihan_angle = st.radio(
+    "Pilih perlakuan angle untuk produk Anda:",
+    options=[
+        "A. Gunakan Angle Asli (Paling Aman, anti berubah bentuk)", 
+        "B. Ubah Angle Dinamis (Beresiko, cocok untuk bentuk sederhana)"
+    ]
+)
+
+# Merumuskan teks instruksi angle berdasarkan pilihan
+if "Gunakan Angle Asli" in pilihan_angle:
+    teks_angle_instruksi = "Pertahankan sudut pandang (angle) PERSIS SAMA seperti foto asli pada Gambar 1. JANGAN memutar, memiringkan, atau mengubah perspektif produk sedikit pun untuk menghindari distorsi bentuk."
+else:
+    teks_angle_instruksi = "Ubah sedikit sudut pandang (angle) produk agar lebih dinamis (misalnya agak dimiringkan atau diputar sedikit). PERINGATAN KERAS: Saat mengubah angle, Anda WAJIB mempertahankan geometri 3D, anatomi, dan bentuk asli produk secara mutlak. JANGAN menambah atau mengurangi komponen fisik apa pun. Jika perubahan angle memicu distorsi bentuk, prioritaskan keaslian bentuk daripada angle."
+
+st.write("---")
+
+# Bagian 5: Pilihan Jenis Prompt
+st.subheader("5. Pilih Jenis Prompt")
 jenis_prompt = st.radio(
     "Mau merakit prompt untuk gambar yang mana?",
     options=[
-        "1. Thumbnail Utama (Angle dinamis & Pencahayaan khusus hitam)", 
-        "2. Foto Detail Pendukung (Close-up & fokus tekstur)"
+        "1. Thumbnail Utama", 
+        "2. Foto Detail Pendukung (Close-up)"
     ]
 )
 
@@ -88,7 +106,7 @@ if st.button("Rakit Teks Prompt", type="primary"):
             master_prompt_teks = f"""Edit foto produk pada Gambar 1 menjadi thumbnail Shopee yang estetik, profesional, realistis, dan sangat menjual, dengan menggunakan Gambar 2 sebagai referensi konsep utama. Samakan gaya visual, nuansa desain, warna background, pencahayaan, dan komposisinya agar hasil akhir semirip mungkin dengan Gambar 2.
 
 1. Fokus Produk, Sudut Pandang (Angle), & Peningkatan Detail Warna Hitam:
-Buat objek produk terlihat lebih nyata, tajam, bersih, detail, presisi, dan menonjol. Ubah sedikit sudut pandang (angle) produk agar tidak persis sama dengan foto asli pada Gambar 1. Buat angle-nya sedikit lebih dinamis (misalnya agak dimiringkan, diputar sedikit, atau diambil dari sudut sedikit menyamping) agar dimensi produk lebih terlihat jelas dan menarik. PENTING: Khusus untuk produk atau bagian produk yang berwarna HITAM, tingkatkan kecerahan (brightness/exposure) dan perjelas detail teksturnya agar lekukan, bentuk, dan materialnya terlihat sangat cerah, jelas, dan tidak gelap/tenggelam. Meskipun angle dan kecerahan diubah, JANGAN mengubah bentuk asli produk, ukuran proporsional, jumlah kabel, tulisan pada label, maupun detail fisik lainnya. Produk harus menjadi pusat perhatian, terlihat premium, dan meyakinkan.
+Buat objek produk terlihat lebih nyata, tajam, bersih, detail, presisi, dan menonjol. {teks_angle_instruksi} PENTING: Khusus untuk produk atau bagian produk yang berwarna HITAM, tingkatkan kecerahan (brightness/exposure) dan perjelas detail teksturnya agar lekukan, bentuk, dan materialnya terlihat sangat cerah, jelas, dan tidak gelap/tenggelam. JANGAN mengubah bentuk asli produk, ukuran proporsional, jumlah kabel, tulisan pada label, maupun detail fisik lainnya. Produk harus menjadi pusat perhatian, terlihat premium, dan meyakinkan.
 
 2. Background, Pencahayaan & Efek:
 Gunakan background yang clean, modern, cerah, estetik, dan mewah seperti konsep Gambar 2. Terapkan pencahayaan studio (studio lighting) yang lembut namun tegas, dengan fill light tambahan yang mengarah ke area produk yang berwarna gelap/hitam. Tambahkan bayangan halus (drop shadow) di bawah produk agar terlihat memiliki kedalaman, tidak melayang, dan lebih hidup. Tingkatkan tekstur dan ketajaman agar menyerupai foto studio berkualitas tinggi.{teks_efek_tambahan}
@@ -123,9 +141,9 @@ Gunakan hasil thumbnail utama sebagai referensi gaya visual, termasuk background
 
 Tonjolkan bagian penting produk secara jelas dan realistis, seperti kabel, lubang baut, as, konektor, gear, body produk, tekstur material, atau bagian lain yang menjadi nilai jual produk. Khusus untuk area berwarna hitam/gelap, tingkatkan kecerahan agar teksturnya tetap terlihat sangat jelas. Buat detail produk terlihat tajam, bersih, dan meyakinkan untuk pembeli.
 
-Jangan mengubah bentuk asli produk, warna asli produk, jumlah kabel, posisi lubang baut, ukuran proporsional, panjang as, konektor, maupun detail fisik lainnya. Semua bagian produk harus tetap realistis dan sesuai barang asli.
+{teks_angle_instruksi} Gunakan angle close-up yang informatif. Produk boleh ditampilkan lebih dekat, tetapi jangan sampai terlalu terpotong berlebihan. Pastikan bagian detail utama terlihat jelas, rapi, dan mudah dipahami pembeli.
 
-Gunakan angle close-up yang informatif. Produk boleh ditampilkan lebih dekat, tetapi jangan sampai terlalu terpotong berlebihan. Pastikan bagian detail utama terlihat jelas, rapi, dan mudah dipahami pembeli.
+Jangan mengubah bentuk asli produk, warna asli produk, jumlah kabel, posisi lubang baut, ukuran proporsional, panjang as, konektor, maupun detail fisik lainnya. Semua bagian produk harus tetap mutlak realistis dan sesuai barang asli.
 
 Komposisi harus tetap clean, modern, dan tidak ramai. Background harus serasi dengan hasil thumbnail utama agar seluruh foto produk terlihat profesional dan konsisten dalam satu etalase Shopee. Gunakan pencahayaan studio yang lembut namun tegas untuk memperjelas tekstur dan bentuk produk.{teks_efek_tambahan}
 
