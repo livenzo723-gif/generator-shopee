@@ -1,7 +1,6 @@
 import streamlit as st
-import google.generativeai as genai
-from PIL import Image
-import io
+from google import genai
+from google.genai import types
 
 # Mengatur tampilan halaman
 st.set_page_config(page_title="Generator Gambar Shopee", page_icon="🛍️")
@@ -26,7 +25,7 @@ if st.button("Generate Gambar 8K", type="primary"):
     elif not judul_produk:
         st.warning("Mohon isi minimal Judul Produk terlebih dahulu.")
     else:
-        # Master Prompt
+        # Master Prompt Rahasia Anda
         master_prompt = f"""
         Edit foto produk menjadi thumbnail Shopee yang estetik, profesional, realistis, dan sangat menjual.
         
@@ -43,27 +42,24 @@ if st.button("Generate Gambar 8K", type="primary"):
         KUALITAS AKHIR: Rasio 1:1. Resolusi tinggi. Sangat tajam, tidak pecah, seperti foto produk studio premium.
         """
         
-        st.info("Mengirim instruksi ke AI Google... Mohon tunggu sebentar.")
+        st.info("Mengirim instruksi ke AI Google... Mohon tunggu sebentar (bisa memakan waktu 10-30 detik).")
         
-        # Proses Menghubungi Google AI
+        # Proses Menghubungi Google AI menggunakan library terbaru (google-genai)
         try:
-            genai.configure(api_key=api_key)
-            # Memanggil model pembuat gambar (Imagen) dari Google
-            # Catatan: Ketersediaan model ini tergantung pada akses API Key Anda
-            model = genai.ImageGenerationModel("imagen-3.0-generate-001")
-            
-            hasil = model.generate_images(
+            client = genai.Client(api_key=api_key)
+            response = client.models.generate_images(
+                model='imagen-3.0-generate-001',
                 prompt=master_prompt,
-                number_of_images=1,
-                aspect_ratio="1:1"
+                config=types.GenerateImagesConfig(
+                    number_of_images=1,
+                    aspect_ratio="1:1"
+                )
             )
             
-            for gambar_ai in hasil.images:
-                # Menampilkan gambar ke layar
-                image_bytes = io.BytesIO(gambar_ai._image_bytes)
-                st.image(Image.open(image_bytes), caption=f"Hasil Generate: {judul_produk}")
-                st.success("Berhasil! Gambar siap diunduh.")
+            for generated_image in response.generated_images:
+                # Streamlit langsung membaca data gambar (raw bytes) dari Google
+                st.image(generated_image.image.image_bytes, caption=f"Hasil Generate: {judul_produk}")
+                st.success("Berhasil! Gambar siap digunakan. (Klik Kanan pada gambar -> Save Image As).")
                 
         except Exception as e:
             st.error(f"Terjadi kendala saat menghubungi AI: {e}")
-            st.warning("Pastikan API Key Anda benar, atau akun Anda sudah memiliki akses ke layanan pembuat gambar (Imagen).")
