@@ -34,8 +34,35 @@ deskripsi_produk = st.text_area("Deskripsi / Detail Produk", placeholder="Contoh
 
 st.write("---")
 
-# Bagian 3: Pilihan Jenis Prompt
-st.subheader("3. Pilih Jenis Prompt")
+# Bagian 3: Efek Visual Tambahan
+st.subheader("3. Efek Visual Tambahan (Opsional)")
+pilihan_efek = st.selectbox(
+    "Pilih efek estetika untuk background foto:",
+    options=[
+        "Tanpa Efek (Polos/Clean)",
+        "Asap putih tipis (wispy white smoke)",
+        "Pantulan kaca/air di bawah produk (Glossy reflection)",
+        "Cahaya neon halus (Subtle neon glow)",
+        "Percikan air segar (Water splashes)",
+        "Bayangan daun estetik (Aesthetic leaf shadow/Gobo)",
+        "(Ketik Manual Efek Lainnya...)"
+    ]
+)
+
+if pilihan_efek == "(Ketik Manual Efek Lainnya...)":
+    efek_final = st.text_input("Ketik efek visual yang diinginkan:", placeholder="Contoh: Taburan serpihan emas di udara...")
+else:
+    efek_final = pilihan_efek
+
+# Merakit kalimat efek khusus jika pengguna memilih efek
+teks_efek_tambahan = ""
+if efek_final != "Tanpa Efek (Polos/Clean)" and efek_final.strip() != "":
+    teks_efek_tambahan = f"\nEFEK VISUAL TAMBAHAN:\nTambahkan elemen estetika berupa '{efek_final}'. Aplikasikan efek ini pada area background atau di sekitar produk secara halus, proporsional, dan elegan. Efek ini berfungsi untuk mempercantik suasana (mood) foto TANPA menutupi, mendistraksi, atau merusak detail fisik dari produk utama."
+
+st.write("---")
+
+# Bagian 4: Pilihan Jenis Prompt
+st.subheader("4. Pilih Jenis Prompt")
 jenis_prompt = st.radio(
     "Mau merakit prompt untuk gambar yang mana?",
     options=[
@@ -64,8 +91,8 @@ if st.button("Rakit Teks Prompt", type="primary"):
 1. Fokus Produk & Sudut Pandang (Angle):
 Buat objek produk terlihat lebih nyata, tajam, bersih, detail, presisi, dan menonjol. Ubah sedikit sudut pandang (angle) produk agar tidak persis sama dengan foto asli pada Gambar 1. Buat angle-nya sedikit lebih dinamis (misalnya agak dimiringkan, diputar sedikit, atau diambil dari sudut sedikit menyamping) agar dimensi produk lebih terlihat jelas dan menarik. Meskipun angle diubah, JANGAN mengubah bentuk asli produk, warna asli produk, ukuran proporsional, jumlah kabel, tulisan pada label, maupun detail fisik lainnya. Produk harus menjadi pusat perhatian, terlihat premium, dan meyakinkan.
 
-2. Background & Pencahayaan:
-Gunakan background yang clean, modern, cerah, estetik, dan mewah seperti konsep Gambar 2. Terapkan pencahayaan studio (studio lighting) yang lembut namun tegas. Tambahkan bayangan halus (drop shadow) di bawah produk agar terlihat memiliki kedalaman, tidak melayang, dan lebih hidup. Tingkatkan tekstur dan ketajaman agar menyerupai foto studio berkualitas tinggi.
+2. Background, Pencahayaan & Efek:
+Gunakan background yang clean, modern, cerah, estetik, dan mewah seperti konsep Gambar 2. Terapkan pencahayaan studio (studio lighting) yang lembut namun tegas. Tambahkan bayangan halus (drop shadow) di bawah produk agar terlihat memiliki kedalaman, tidak melayang, dan lebih hidup. Tingkatkan tekstur dan ketajaman agar menyerupai foto studio berkualitas tinggi.{teks_efek_tambahan}
 
 3. Komposisi & Tata Letak:
 Buat komposisi yang rapi di mana produk menjadi elemen paling dominan dan berukuran cukup besar di tengah area desain. Elemen visual pendukung boleh ditambahkan secukupnya namun jangan terlalu ramai. Pastikan hasil akhir tetap clean, elegan, dan fokus utama tetap pada produk.
@@ -97,11 +124,11 @@ Gunakan hasil thumbnail utama sebagai referensi gaya visual, termasuk background
 
 Tonjolkan bagian penting produk secara jelas dan realistis, seperti kabel, lubang baut, as, konektor, gear, body produk, tekstur material, atau bagian lain yang menjadi nilai jual produk. Buat detail produk terlihat tajam, bersih, dan meyakinkan untuk pembeli.
 
-Gunakan angle close-up yang informatif. Produk boleh ditampilkan lebih dekat, tetapi jangan sampai terlalu terpotong berlebihan. Pastikan bagian detail utama terlihat jelas, rapi, dan mudah dipahami pembeli.
-
 Jangan mengubah bentuk asli produk, warna asli produk, jumlah kabel, posisi lubang baut, ukuran proporsional, panjang as, konektor, maupun detail fisik lainnya. Semua bagian produk harus tetap realistis dan sesuai barang asli.
 
-Komposisi harus tetap clean, modern, dan tidak ramai. Background harus serasi dengan hasil thumbnail utama agar seluruh foto produk terlihat profesional dan konsisten dalam satu etalase Shopee. Gunakan pencahayaan studio yang lembut namun tegas untuk memperjelas tekstur dan bentuk produk.
+Gunakan angle close-up yang informatif. Produk boleh ditampilkan lebih dekat, tetapi jangan sampai terlalu terpotong berlebihan. Pastikan bagian detail utama terlihat jelas, rapi, dan mudah dipahami pembeli.
+
+Komposisi harus tetap clean, modern, dan tidak ramai. Background harus serasi dengan hasil thumbnail utama agar seluruh foto produk terlihat profesional dan konsisten dalam satu etalase Shopee. Gunakan pencahayaan studio yang lembut namun tegas untuk memperjelas tekstur dan bentuk produk.{teks_efek_tambahan}
 
 Jika perlu, tambahkan teks kecil sebagai penjelas detail, seperti:
 “{judul_produk}”
