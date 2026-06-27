@@ -23,15 +23,17 @@ with col1:
     gambar1_file = st.file_uploader("Upload Gambar 1 (Foto Produk Asli)", type=["jpg", "jpeg", "png", "webp"])
     if gambar1_file:
         img1 = Image.open(gambar1_file)
-        st.image(img1, caption="Gambar 1: Produk Asli", use_column_width=True)
+        # PERUBAHAN: Ukuran gambar dikunci ke lebar 300 agar tidak memenuhi layar
+        st.image(img1, caption="Gambar 1: Produk Asli", width=300)
 
 with col2:
     gambar2_file = st.file_uploader("Upload Gambar 2 (Referensi Konsep)", type=["jpg", "jpeg", "png", "webp"])
     if gambar2_file:
         img2 = Image.open(gambar2_file)
-        st.image(img2, caption="Gambar 2: Referensi Konsep", use_column_width=True)
+        # PERUBAHAN: Ukuran gambar dikunci ke lebar 300 agar tidak memenuhi layar
+        st.image(img2, caption="Gambar 2: Referensi Konsep", width=300)
 
-# Area Input Teks (Otomatis masuk ke dalam susunan prompt sukses Anda)
+# Area Input Teks
 st.subheader("2. Data Produk Anda")
 judul_produk = st.text_input("Judul Produk", placeholder="Contoh: Relay Ptc Overload Kulkas Polytron 1 pintu")
 deskripsi_produk = st.text_area("Deskripsi / Detail Produk", placeholder="Contoh:\nRelay Overload Compresor kulkas Polytron\nModel kulkas 1 pintu\nRelay 1 pin kanan + Overloud\n1 SET")
@@ -46,7 +48,7 @@ if st.button("Generate Gambar 8K", type="primary"):
         st.warning("Mohon isi Judul Produk terlebih dahulu.")
     else:
         
-        # PROMPT UTUH DAN SUKSES ANDA YANG SUDAH DIINTEGRASIKAN KE SISTEM
+        # PROMPT UTUH DAN SUKSES ANDA
         master_prompt_teks = f"""
         Edit foto produk pada Gambar 1 menjadi thumbnail Shopee yang estetik, profesional, realistis, dan sangat menjual. Gunakan Gambar 2 sebagai referensi konsep utama. Samakan gaya visual, nuansa desain, warna background, pencahayaan, komposisi, dan tata letak agar hasil akhir seragam dan semirip mungkin dengan konsep pada Gambar 2.
 
@@ -97,7 +99,8 @@ if st.button("Generate Gambar 8K", type="primary"):
             
             for part in response.parts:
                 if part.inline_data:
-                    st.image(part.inline_data.data, caption=f"Hasil Premium: {judul_produk}", use_column_width=True)
+                    # PERUBAHAN: Hasil gambar akhir dikunci ke lebar 400 agar pas di monitor dan tidak kebesaran
+                    st.image(part.inline_data.data, caption=f"Hasil Premium: {judul_produk}", width=400)
                     st.success("Berhasil! Gambar berkualitas tinggi siap digunakan. (Klik Kanan -> Save Image As).")
                 
         except Exception as e:
