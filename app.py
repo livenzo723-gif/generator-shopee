@@ -44,22 +44,27 @@ if st.button("Generate Gambar 8K", type="primary"):
         
         st.info("Mengirim instruksi ke AI Google... Mohon tunggu sebentar (bisa memakan waktu 10-30 detik).")
         
-        # Proses Menghubungi Google AI menggunakan library terbaru (google-genai)
         try:
             client = genai.Client(api_key=api_key)
-            response = client.models.generate_images(
-                model='imagen-3.0-generate-001',
-                prompt=master_prompt,
-                config=types.GenerateImagesConfig(
-                    number_of_images=1,
-                    aspect_ratio="1:1"
+            
+            # Menggunakan model Gemini Flash terbaru yang sudah terintegrasi untuk gambar
+            response = client.models.generate_content(
+                model='gemini-2.5-flash-image',
+                contents=master_prompt,
+                config=types.GenerateContentConfig(
+                    response_modalities=["IMAGE"],
+                    image_config=types.ImageConfig(
+                        aspect_ratio="1:1"
+                    )
                 )
             )
             
-            for generated_image in response.generated_images:
-                # Streamlit langsung membaca data gambar (raw bytes) dari Google
-                st.image(generated_image.image.image_bytes, caption=f"Hasil Generate: {judul_produk}")
-                st.success("Berhasil! Gambar siap digunakan. (Klik Kanan pada gambar -> Save Image As).")
+            # Menampilkan hasil gambar
+            for part in response.parts:
+                if part.inline_data:
+                    st.image(part.inline_data.data, caption=f"Hasil Generate: {judul_produk}")
+                    st.success("Berhasil! Gambar siap digunakan. (Klik Kanan pada gambar -> Save Image As).")
                 
         except Exception as e:
             st.error(f"Terjadi kendala saat menghubungi AI: {e}")
+            st.write("Pastikan API Key Anda aktif dan kuota gratis akun Anda masih tersedia.")
