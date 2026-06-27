@@ -34,29 +34,30 @@ deskripsi_produk = st.text_area("Deskripsi / Detail Produk", placeholder="Contoh
 
 st.write("---")
 
-# Bagian 3: Efek Visual Tambahan
+# Bagian 3: Efek Visual Tambahan (Bisa Centang Banyak)
 st.subheader("3. Efek Visual Tambahan (Opsional)")
-pilihan_efek = st.selectbox(
-    "Pilih efek estetika untuk background foto:",
+pilihan_efek = st.multiselect(
+    "Centang efek estetika untuk background foto (bisa pilih lebih dari satu):",
     options=[
-        "Tanpa Efek (Polos/Clean)",
         "Asap putih tipis (wispy white smoke)",
         "Pantulan kaca/air di bawah produk (Glossy reflection)",
         "Cahaya neon halus (Subtle neon glow)",
         "Percikan air segar (Water splashes)",
-        "Bayangan daun estetik (Aesthetic leaf shadow/Gobo)",
-        "(Ketik Manual Efek Lainnya...)"
+        "Bayangan daun estetik (Aesthetic leaf shadow/Gobo)"
     ]
 )
 
-if pilihan_efek == "(Ketik Manual Efek Lainnya...)":
-    efek_final = st.text_input("Ketik efek visual yang diinginkan:", placeholder="Contoh: Taburan serpihan emas di udara...")
-else:
-    efek_final = pilihan_efek
+efek_manual = st.text_input("Atau ketik manual efek lainnya (opsional):", placeholder="Contoh: Taburan serpihan emas di udara...")
+
+# Menggabungkan semua efek yang dicentang dan yang diketik manual
+semua_efek = pilihan_efek.copy()
+if efek_manual.strip() != "":
+    semua_efek.append(efek_manual.strip())
 
 teks_efek_tambahan = ""
-if efek_final != "Tanpa Efek (Polos/Clean)" and efek_final.strip() != "":
-    teks_efek_tambahan = f"\nEFEK VISUAL TAMBAHAN:\nTambahkan elemen estetika berupa '{efek_final}'. Aplikasikan efek ini pada area background atau di sekitar produk secara halus, proporsional, dan elegan. Efek ini berfungsi untuk mempercantik suasana (mood) foto TANPA menutupi, mendistraksi, atau merusak detail fisik dari produk utama."
+if len(semua_efek) > 0:
+    gabungan_efek = ", ".join(semua_efek)
+    teks_efek_tambahan = f"\n\nEFEK VISUAL TAMBAHAN:\nTambahkan elemen estetika berupa: {gabungan_efek}. Aplikasikan efek ini pada area background atau di sekitar produk secara halus, proporsional, dan elegan. Efek ini berfungsi untuk mempercantik suasana (mood) foto TANPA menutupi, mendistraksi, atau merusak detail fisik dari produk utama."
 
 st.write("---")
 
@@ -70,7 +71,6 @@ pilihan_angle = st.radio(
     ]
 )
 
-# Merumuskan teks instruksi angle berdasarkan pilihan
 if "Gunakan Angle Asli" in pilihan_angle:
     teks_angle_instruksi = "Pertahankan sudut pandang (angle) PERSIS SAMA seperti foto asli pada Gambar 1. JANGAN memutar, memiringkan, atau mengubah perspektif produk sedikit pun untuk menghindari distorsi bentuk."
 else:
