@@ -23,15 +23,15 @@ with col1:
     gambar1_file = st.file_uploader("Upload Gambar 1 (Foto Produk Asli)", type=["jpg", "jpeg", "png", "webp"])
     if gambar1_file:
         img1 = Image.open(gambar1_file)
-        # PERUBAHAN: Ukuran gambar dikunci ke lebar 300 agar tidak memenuhi layar
-        st.image(img1, caption="Gambar 1: Produk Asli", width=300)
+        # UKURAN DIPERKECIL LAGI: Dikunci ke lebar 200 piksel
+        st.image(img1, caption="Gambar 1: Produk Asli", width=200)
 
 with col2:
     gambar2_file = st.file_uploader("Upload Gambar 2 (Referensi Konsep)", type=["jpg", "jpeg", "png", "webp"])
     if gambar2_file:
         img2 = Image.open(gambar2_file)
-        # PERUBAHAN: Ukuran gambar dikunci ke lebar 300 agar tidak memenuhi layar
-        st.image(img2, caption="Gambar 2: Referensi Konsep", width=300)
+        # UKURAN DIPERKECIL LAGI: Dikunci ke lebar 200 piksel
+        st.image(img2, caption="Gambar 2: Referensi Konsep", width=200)
 
 # Area Input Teks
 st.subheader("2. Data Produk Anda")
@@ -99,8 +99,8 @@ if st.button("Generate Gambar 8K", type="primary"):
             
             for part in response.parts:
                 if part.inline_data:
-                    # PERUBAHAN: Hasil gambar akhir dikunci ke lebar 400 agar pas di monitor dan tidak kebesaran
-                    st.image(part.inline_data.data, caption=f"Hasil Premium: {judul_produk}", width=400)
+                    # UKURAN DIPERKECIL LAGI: Hasil akhir dikunci ke lebar 300 piksel agar pas di monitor
+                    st.image(part.inline_data.data, caption=f"Hasil Premium: {judul_produk}", width=300)
                     st.success("Berhasil! Gambar berkualitas tinggi siap digunakan. (Klik Kanan -> Save Image As).")
                 
         except Exception as e:
