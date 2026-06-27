@@ -20,13 +20,15 @@ st.subheader("1. Upload Gambar Anda")
 col1, col2 = st.columns(2)
 
 with col1:
-    gambar1_file = st.file_uploader("Upload Gambar 1 (Foto Produk Asli)", type=["jpg", "jpeg", "png"])
+    # PERUBAHAN ADA DI SINI: Menambahkan "webp" ke dalam daftar format yang didukung
+    gambar1_file = st.file_uploader("Upload Gambar 1 (Foto Produk Asli)", type=["jpg", "jpeg", "png", "webp"])
     if gambar1_file:
         img1 = Image.open(gambar1_file)
         st.image(img1, caption="Gambar 1: Produk Asli", use_column_width=True)
 
 with col2:
-    gambar2_file = st.file_uploader("Upload Gambar 2 (Referensi Konsep)", type=["jpg", "jpeg", "png"])
+    # PERUBAHAN ADA DI SINI: Menambahkan "webp" ke dalam daftar format yang didukung
+    gambar2_file = st.file_uploader("Upload Gambar 2 (Referensi Konsep)", type=["jpg", "jpeg", "png", "webp"])
     if gambar2_file:
         img2 = Image.open(gambar2_file)
         st.image(img2, caption="Gambar 2: Referensi Konsep", use_column_width=True)
