@@ -1,4 +1,7 @@
 import streamlit as st
+import google.generativeai as genai
+from PIL import Image
+import io
 
 # Mengatur tampilan halaman
 st.set_page_config(page_title="Generator Gambar Shopee", page_icon="🛍️")
@@ -6,13 +9,12 @@ st.set_page_config(page_title="Generator Gambar Shopee", page_icon="🛍️")
 st.title("🛍️ Generator Thumbnail Shopee 8K")
 st.write("Aplikasi AI untuk menyulap judul & deskripsi menjadi foto produk estetik dan profesional.")
 
-# Kolom rahasia di samping untuk memasukkan "Kunci Akses" (API Key) nanti
+# Kolom di samping untuk Kunci Akses (API Key)
 with st.sidebar:
     st.header("Pengaturan AI")
     api_key = st.text_input("Masukkan Google API Key", type="password")
-    st.info("Kunci ini akan kita dapatkan di langkah selanjutnya.")
 
-# Area Input untuk Anda jualan
+# Area Input Produk
 st.subheader("Data Produk Anda")
 judul_produk = st.text_input("Judul Produk", placeholder="Contoh: Relay Ptc Overload Kulkas...")
 deskripsi_produk = st.text_area("Deskripsi / Detail Produk", placeholder="Contoh: Model kulkas 1 pintu, 1 SET...")
@@ -24,7 +26,7 @@ if st.button("Generate Gambar 8K", type="primary"):
     elif not judul_produk:
         st.warning("Mohon isi minimal Judul Produk terlebih dahulu.")
     else:
-        # INI ADALAH MASTER PROMPT RAHASIA ANDA (Tidak perlu diketik ulang lagi)
+        # Master Prompt
         master_prompt = f"""
         Edit foto produk menjadi thumbnail Shopee yang estetik, profesional, realistis, dan sangat menjual.
         
@@ -33,16 +35,35 @@ if st.button("Generate Gambar 8K", type="primary"):
         - Detail: {deskripsi_produk}
         
         INSTRUKSI VISUAL:
-        Fokus utama adalah produk terlihat lebih nyata, tajam, bersih, detail, presisi, dan menonjol. Produk harus menjadi pusat perhatian, terlihat premium, dan meyakinkan. Jangan mengubah bentuk asli, warna, ukuran, atau detail fisik produk.
+        Fokus utama adalah produk terlihat lebih nyata, tajam, bersih, detail, presisi, dan menonjol. 
+        Background: clean, modern, cerah, estetik. Pencahayaan studio lembut namun tegas.
+        Teks Promosi: "BEST QUALITY" atau "READY STOCK". 
+        Watermark: Transparan bertuliskan "NAURA ULFA" di bagian tengah produk.
         
-        Background: clean, modern, cerah, estetik. Pencahayaan studio lembut namun tegas, ada bayangan halus di bawah produk.
-        Teks Promosi: "BEST QUALITY" atau "READY STOCK" dengan font modern tanpa menutupi produk utama.
-        Watermark: Transparan bertuliskan "NAURA ULFA" di bagian tengah produk, tipis dan elegan.
-        
-        KUALITAS AKHIR: Rasio 1:1. Resolusi HIGH RESOLUTION minimal 2K (target kualitas 8K). Sangat tajam, tidak pecah, dan terlihat seperti foto produk studio premium.
+        KUALITAS AKHIR: Rasio 1:1. Resolusi tinggi. Sangat tajam, tidak pecah, seperti foto produk studio premium.
         """
         
-        st.success("Teks berhasil dirakit oleh sistem!")
-        st.info("Ini adalah prompt panjang yang akan dikirim otomatis ke AI Google (tersembunyi dari pembeli):")
-        st.code(master_prompt)
-        st.write("*(Catatan: Gambar akan muncul di sini setelah kita menghubungkan Kunci API Google di tahap akhir!)*")
+        st.info("Mengirim instruksi ke AI Google... Mohon tunggu sebentar.")
+        
+        # Proses Menghubungi Google AI
+        try:
+            genai.configure(api_key=api_key)
+            # Memanggil model pembuat gambar (Imagen) dari Google
+            # Catatan: Ketersediaan model ini tergantung pada akses API Key Anda
+            model = genai.ImageGenerationModel("imagen-3.0-generate-001")
+            
+            hasil = model.generate_images(
+                prompt=master_prompt,
+                number_of_images=1,
+                aspect_ratio="1:1"
+            )
+            
+            for gambar_ai in hasil.images:
+                # Menampilkan gambar ke layar
+                image_bytes = io.BytesIO(gambar_ai._image_bytes)
+                st.image(Image.open(image_bytes), caption=f"Hasil Generate: {judul_produk}")
+                st.success("Berhasil! Gambar siap diunduh.")
+                
+        except Exception as e:
+            st.error(f"Terjadi kendala saat menghubungi AI: {e}")
+            st.warning("Pastikan API Key Anda benar, atau akun Anda sudah memiliki akses ke layanan pembuat gambar (Imagen).")
