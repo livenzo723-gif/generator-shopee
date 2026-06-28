@@ -1,10 +1,10 @@
 import streamlit as st
 
 # Mengatur tampilan halaman agar rapi
-st.set_page_config(page_title="Generator Prompt Shopee", page_icon="📝", layout="centered")
+st.set_page_config(page_title="Generator Prompt Shopee", page_icon="📝", layout="wide")
 
-st.title("🛍️ Generator Prompt Thumbnail Shopee")
-st.write("Masukkan data produk dan atur watermark toko untuk merakit teks prompt berkualitas tinggi secara otomatis.")
+st.title("🛍️ Generator Prompt Thumbnail (Arsitektur 3 Gambar)")
+st.write("Masukkan data produk, atur watermark, dan tentukan detail ide kompetitor untuk merakit teks prompt otomatis.")
 
 # --- FITUR RIWAYAT WATERMARK ---
 if 'riwayat_watermark' not in st.session_state:
@@ -34,8 +34,17 @@ deskripsi_produk = st.text_area("Deskripsi / Detail Produk", placeholder="Contoh
 
 st.write("---")
 
-# Bagian 3: Efek Visual Tambahan (Bisa Centang Banyak)
-st.subheader("3. Efek Visual Tambahan (Opsional)")
+# Bagian 3: Detail Ide Spesifik dari Gambar 2 (Fitur Baru)
+st.subheader("3. Detail Ide Spesifik dari Gambar 2 (Foto Kompetitor)")
+ide_gambar2 = st.text_area(
+    "Ketik ide, detail teknis, atau komponen spesifik apa yang mau diambil dari Gambar 2:",
+    placeholder="Contoh: Ambil ide posisi tata letak kabel yang melingkar rapi di samping produk, serta perjelas detail terminal sekrup presisinya..."
+)
+
+st.write("---")
+
+# Bagian 4: Efek Visual Tambahan (Bisa Centang Banyak)
+st.subheader("4. Efek Visual Tambahan (Opsional)")
 pilihan_efek = st.multiselect(
     "Centang efek estetika untuk background foto (bisa pilih lebih dari satu):",
     options=[
@@ -47,9 +56,8 @@ pilihan_efek = st.multiselect(
     ]
 )
 
-efek_manual = st.text_input("Atau ketik manual efek lainnya (opsional):", placeholder="Contoh: Taburan serpihan emas di udara...")
+efek_manual = st.text_input("Atau ketik manual efek lainnya:", placeholder="Contoh: Taburan serpihan emas di udara...")
 
-# Menggabungkan semua efek yang dicentang dan yang diketik manual
 semua_efek = pilihan_efek.copy()
 if efek_manual.strip() != "":
     semua_efek.append(efek_manual.strip())
@@ -61,8 +69,8 @@ if len(semua_efek) > 0:
 
 st.write("---")
 
-# Bagian 4: Opsi Sudut Pandang (Angle)
-st.subheader("4. Opsi Sudut Pandang (Angle) Produk")
+# Bagian 5: Opsi Sudut Pandang (Angle)
+st.subheader("5. Opsi Sudut Pandang (Angle) Produk")
 pilihan_angle = st.radio(
     "Pilih perlakuan angle untuk produk Anda:",
     options=[
@@ -72,14 +80,14 @@ pilihan_angle = st.radio(
 )
 
 if "Gunakan Angle Asli" in pilihan_angle:
-    teks_angle_instruksi = "Pertahankan sudut pandang (angle) PERSIS SAMA seperti foto asli pada Gambar 1. JANGAN memutar, memiringkan, atau mengubah perspektif produk sedikit pun untuk menghindari distorsi bentuk."
+    teks_angle_instruksi = "Pertahankan sudut pandang (angle) produk PERSIS SAMA seperti pada Gambar 1. JANGAN memutar, memiringkan, atau mengubah perspektif produk sedikit pun untuk menghindari distorsi bentuk."
 else:
-    teks_angle_instruksi = "Ubah sedikit sudut pandang (angle) produk agar lebih dinamis (misalnya agak dimiringkan atau diputar sedikit). PERINGATAN KERAS: Saat mengubah angle, Anda WAJIB mempertahankan geometri 3D, anatomi, dan bentuk asli produk secara mutlak. JANGAN menambah atau mengurangi komponen fisik apa pun. Jika perubahan angle memicu distorsi bentuk, prioritaskan keaslian bentuk daripada angle."
+    teks_angle_instruksi = "Ubah sedikit sudut pandang (angle) produk agar lebih dinamis (misalnya agak dimiringkan atau diputar sedikit) dengan mengikuti tata letak dari Gambar 2. PERINGATAN KERAS: Saat mengubah angle, Anda WAJIB mempertahankan geometri 3D, anatomi, dan bentuk asli produk secara mutlak seperti pada Gambar 1. JANGAN menambah atau mengurangi komponen fisik apa pun. Jika perubahan angle memicu distorsi bentuk, prioritaskan keaslian bentuk daripada angle."
 
 st.write("---")
 
-# Bagian 5: Pilihan Jenis Prompt
-st.subheader("5. Pilih Jenis Prompt")
+# Bagian 6: Pilihan Jenis Prompt
+st.subheader("6. Pilih Jenis Prompt")
 jenis_prompt = st.radio(
     "Mau merakit prompt untuk gambar yang mana?",
     options=[
@@ -96,6 +104,8 @@ if st.button("Rakit Teks Prompt", type="primary"):
         st.warning("Mohon isi Nama Watermark terlebih dahulu.")
     elif not judul_produk:
         st.warning("Mohon isi Judul Produk terlebih dahulu.")
+    elif not ide_gambar2:
+        st.warning("Mohon isi detail ide spesifik dari Gambar 2 terlebih dahulu.")
     else:
         # Menyimpan nama baru ke riwayat secara otomatis
         if watermark_final not in st.session_state['riwayat_watermark']:
@@ -103,30 +113,34 @@ if st.button("Rakit Teks Prompt", type="primary"):
             
         if "1. Thumbnail Utama" in jenis_prompt:
             # --- PROMPT 1: THUMBNAIL UTAMA ---
-            master_prompt_teks = f"""Edit foto produk pada Gambar 1 menjadi thumbnail Shopee yang estetik, profesional, realistis, dan sangat menjual, dengan menggunakan Gambar 2 sebagai referensi konsep utama. Samakan gaya visual, nuansa desain, warna background, pencahayaan, dan komposisinya agar hasil akhir semirip mungkin dengan Gambar 2.
+            master_prompt_teks = f"""Edit foto produk menjadi thumbnail Shopee yang estetik, profesional, realistis, dan sangat menjual dengan aturan 3 Gambar berikut:
+- GAMBAR 1 (BAHAN FISIK): Jadikan referensi mutlak untuk anatomi, bentuk, dan detail fisik produk.
+- GAMBAR 2 (IDE KOMPOSISI & REFERENSI DETAIL): Jadikan referensi untuk tata letak (layout) dan mengambil detail spesifik tertentu.
+- GAMBAR 3 (DNA TOKO): Jadikan referensi mutlak untuk gaya visual, nuansa desain, warna background, dan pencahayaan.
 
 1. Fokus Produk, Sudut Pandang (Angle), & Peningkatan Detail Warna Hitam:
-Buat objek produk terlihat lebih nyata, tajam, bersih, detail, presisi, dan menonjol. {teks_angle_instruksi} PENTING: Khusus untuk produk atau bagian produk yang berwarna HITAM, tingkatkan kecerahan (brightness/exposure) dan perjelas detail teksturnya agar lekukan, bentuk, dan materialnya terlihat sangat cerah, jelas, dan tidak gelap/tenggelam. JANGAN mengubah bentuk asli produk, ukuran proporsional, jumlah kabel, tulisan pada label, maupun detail fisik lainnya. Produk harus menjadi pusat perhatian, terlihat premium, dan meyakinkan.
+Buat objek produk (dari Gambar 1) terlihat lebih nyata, tajam, bersih, detail, presisi, dan menonjol. {teks_angle_instruksi} PENTING: Khusus untuk produk atau bagian produk yang berwarna HITAM, tingkatkan kecerahan (brightness/exposure) dan perjelas detail teksturnya agar lekukan, bentuk, dan materialnya terlihat sangat cerah, jelas, dan tidak gelap/tenggelam. JANGAN mengubah bentuk asli produk, ukuran proporsional, jumlah kabel, tulisan pada label, maupun detail fisik lainnya dari Gambar 1.
 
 2. Background, Pencahayaan & Efek:
-Gunakan background yang clean, modern, cerah, estetik, dan mewah seperti konsep Gambar 2. Terapkan pencahayaan studio (studio lighting) yang lembut namun tegas, dengan fill light tambahan yang mengarah ke area produk yang berwarna gelap/hitam. Tambahkan bayangan halus (drop shadow) di bawah produk agar terlihat memiliki kedalaman, tidak melayang, dan lebih hidup. Tingkatkan tekstur dan ketajaman agar menyerupai foto studio berkualitas tinggi.{teks_efek_tambahan}
+Gunakan background yang clean, modern, cerah, estetik, dan mewah dengan MENYAMAKAN 100% konsep warna dan nuansa dari GAMBAR 3. Terapkan pencahayaan studio (studio lighting) yang lembut namun tegas, dengan fill light tambahan yang mengarah ke area produk yang berwarna gelap/hitam. Tambahkan bayangan halus (drop shadow) di bawah produk agar terlihat memiliki kedalaman, tidak melayang, dan lebih hidup.{teks_efek_tambahan}
 
-3. Komposisi & Tata Letak:
-Buat komposisi yang rapi di mana produk menjadi elemen paling dominan dan berukuran cukup besar di tengah area desain. Elemen visual pendukung boleh ditambahkan secukupnya namun jangan terlalu ramai. Pastikan hasil akhir tetap clean, elegan, dan fokus utama tetap pada produk.
+3. Komposisi & Penerapan Ide Spesifik dari Gambar 2:
+Tiru gaya penempatan produk secara umum dari GAMBAR 2. SECARA KHUSUS, TERAPKAN IDE DAN DETAIL BERIKUT DARI GAMBAR 2 KE DALAM HASIL AKHIR:
+"{ide_gambar2}"
+Terapkan ide tersebut dengan rapi, realistis, dan logis pada produk utama. Pastikan hasil akhir tetap clean, elegan, dan fokus utama tetap pada produk.
 
 4. Teks Promosi & Watermark:
-Tambahkan teks promosi singkat: “BEST QUALITY” dan “READY STOCK”. Gunakan font modern yang mudah dibaca, warna disesuaikan dengan konsep Gambar 2, dan letakkan di posisi yang tepat tanpa menutupi produk utama.
+Tambahkan teks promosi singkat: “BEST QUALITY” dan “READY STOCK”. Gunakan font modern yang mudah dibaca, warna disesuaikan dengan konsep Gambar 3, dan letakkan di posisi yang tepat tanpa menutupi produk utama.
 Tambahkan watermark transparan bertuliskan “{watermark_final}” tepat di area tengah (center) produk. Buat tipis, elegan, dan semi-transparan (opacity rendah) agar menyatu dengan desain. Watermark tidak boleh merusak tampilan produk, namun tetap cukup terbaca sebagai penanda kepemilikan.
 
 5. Referensi Teks Produk (Jika ingin dimasukkan ke dalam desain):
 Judul: 
 [{judul_produk}]
-
 Spesifikasi: 
 {deskripsi_produk}
 
 6. Spesifikasi Output Akhir:
-Rasio: 1:1 (Square, standar thumbnail Shopee).
+Rasio: 1:1 (Square, standar thumbnail e-commerce).
 Resolusi: High Resolution minimal 2K (2048 x 2048 px).
 Kualitas: Sangat tajam, realistis, detail sangat jelas, bersih, tidak pecah, dan tidak blur.
 
@@ -135,30 +149,34 @@ Hasil yang buram, pecah, gelap, produk berwarna hitam yang detailnya mati/hilang
 
         else:
             # --- PROMPT 2: FOTO DETAIL PENDUKUNG ---
-            master_prompt_teks = f"""Edit foto produk menjadi foto pendukung detail produk untuk Shopee yang realistis, tajam, profesional, bersih, dan tetap satu konsep dengan hasil thumbnail utama sebelumnya.
+            master_prompt_teks = f"""Edit foto produk menjadi foto pendukung detail produk (Close-up) untuk Shopee yang realistis, tajam, dan profesional dengan aturan 3 Gambar berikut:
+- GAMBAR 1 (BAHAN FISIK): Jadikan referensi mutlak untuk anatomi, bentuk, dan detail fisik produk.
+- GAMBAR 2 (IDE KOMPOSISI & REFERENSI DETAIL): Jadikan referensi untuk tata letak (layout), sudut pengambilan gambar, dan detail spesifik.
+- GAMBAR 3 (DNA TOKO): Jadikan referensi mutlak untuk gaya visual, nuansa desain, warna background, dan pencahayaan agar tetap satu paket dengan etalase.
 
-Gunakan hasil thumbnail utama sebagai referensi gaya visual, termasuk background clean, tone warna modern, pencahayaan studio, bayangan halus, dan tampilan premium. Foto ini harus terlihat masih satu paket dengan foto utama, tetapi fokusnya lebih dekat ke detail produk.
+Tonjolkan bagian penting produk dari GAMBAR 1 secara jelas dan realistis, seperti kabel, lubang baut, as, konektor, gear, body produk, tekstur material. Khusus untuk area berwarna hitam/gelap, tingkatkan kecerahan agar teksturnya tetap terlihat sangat jelas.
 
-Tonjolkan bagian penting produk secara jelas dan realistis, seperti kabel, lubang baut, as, konektor, gear, body produk, tekstur material, atau bagian lain yang menjadi nilai jual produk. Khusus untuk area berwarna hitam/gelap, tingkatkan kecerahan agar teksturnya tetap terlihat sangat jelas. Buat detail produk terlihat tajam, bersih, dan meyakinkan untuk pembeli.
+{teks_angle_instruksi} Gunakan ide angle dari GAMBAR 2 sebagai referensi close-up yang informatif. Produk boleh ditampilkan lebih dekat, tetapi jangan sampai terlalu terpotong berlebihan. 
 
-{teks_angle_instruksi} Gunakan angle close-up yang informatif. Produk boleh ditampilkan lebih dekat, tetapi jangan sampai terlalu terpotong berlebihan. Pastikan bagian detail utama terlihat jelas, rapi, dan mudah dipahami pembeli.
+SECARA KHUSUS, TERAPKAN IDE DAN DETAIL BERIKUT DARI GAMBAR 2 KE DALAM HASIL AKHIR:
+"{ide_gambar2}"
 
-Jangan mengubah bentuk asli produk, warna asli produk, jumlah kabel, posisi lubang baut, ukuran proporsional, panjang as, konektor, maupun detail fisik lainnya. Semua bagian produk harus tetap mutlak realistis dan sesuai barang asli.
+Jangan mengubah bentuk asli produk, warna asli produk, jumlah kabel, posisi lubang baut, ukuran proporsional, panjang as, konektor, maupun detail fisik lainnya dari GAMBAR 1. Semua bagian produk harus tetap mutlak realistis dan sesuai barang asli.
 
-Komposisi harus tetap clean, modern, dan tidak ramai. Background harus serasi dengan hasil thumbnail utama agar seluruh foto produk terlihat profesional dan konsisten dalam satu etalase Shopee. Gunakan pencahayaan studio yang lembut namun tegas untuk memperjelas tekstur dan bentuk produk.{teks_efek_tambahan}
+Komposisi harus tetap clean dan modern mengikuti GAMBAR 2. Background harus MENYAMAKAN 100% konsep warna dan nuansa dari GAMBAR 3 agar seluruh foto produk terlihat konsisten dalam satu etalase. Gunakan pencahayaan studio yang lembut namun tegas.{teks_efek_tambahan}
 
 Jika perlu, tambahkan teks kecil sebagai penjelas detail, seperti:
 “{judul_produk}”
 
 Teks harus kecil, rapi, modern, tidak menutupi bagian penting produk, dan tetap selaras dengan desain.
 
-Tambahkan watermark transparan bertuliskan “{watermark_final}” secara tipis dan elegan. Watermark harus menyatu dengan desain, tetap terlihat, tetapi tidak mengganggu detail produk.
+Tambahkan watermark transparan bertuliskan “{watermark_final}” secara tipis dan elegan di area tengah produk. Watermark harus menyatu dengan desain, tetap terlihat, tetapi tidak mengganggu detail produk.
 
 Detail yang ingin ditonjolkan:
 {judul_produk}
 {deskripsi_produk}
 
-Hasil akhir harus berupa foto pendukung produk Shopee rasio 1:1, high resolution minimal 2K, sangat tajam, realistis, bersih, tidak blur, tidak pecah, dan cocok sebagai foto kedua, ketiga, atau seterusnya di etalase Shopee.
+Hasil akhir harus berupa foto pendukung produk rasio 1:1, high resolution minimal 2K, sangat tajam, realistis, bersih, tidak blur, tidak pecah, dan cocok sebagai foto kedua, ketiga, atau seterusnya di etalase Shopee.
 
 7. HINDARI (Negative Prompt):
 Hasil yang buram, pecah, gelap, produk berwarna hitam yang detailnya mati/hilang karena kurang cahaya, terlalu ramai, warna berlebihan, bentuk/anatomi produk yang berubah atau terdistorsi, desain terlihat murahan, atau tampilan yang terlalu terlihat seperti gambar kartun/render AI yang tidak realistis."""
