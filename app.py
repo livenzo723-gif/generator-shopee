@@ -4,7 +4,7 @@ import streamlit as st
 st.set_page_config(page_title="Generator Prompt Shopee", page_icon="📝", layout="wide")
 
 st.title("🛍️ Generator Prompt Thumbnail (Arsitektur 3 Gambar)")
-st.write("Masukkan data produk, atur watermark, dan tentukan detail ide kompetitor untuk merakit teks prompt otomatis.")
+st.write("Masukkan data produk, atur efek, dan tentukan detail ide kompetitor untuk merakit teks prompt otomatis.")
 
 # --- FITUR RIWAYAT WATERMARK ---
 if 'riwayat_watermark' not in st.session_state:
@@ -14,16 +14,25 @@ st.write("---")
 
 # Bagian 1: Pengaturan Watermark Toko
 st.subheader("1. Pengaturan Watermark Toko")
-
-pilihan_sejarah = st.selectbox(
-    "Pilih dari Riwayat (Opsional):",
-    options=["(Ketik Baru)"] + st.session_state['riwayat_watermark']
+opsi_watermark = st.radio(
+    "Apakah Anda ingin menambahkan watermark teks buatan AI pada gambar?",
+    options=[
+        "A. Ya, tambahkan watermark teks transparan", 
+        "B. Tidak perlu (Produk sudah ada logo fisik / Biarkan bersih)"
+    ]
 )
 
-if pilihan_sejarah == "(Ketik Baru)":
-    watermark_final = st.text_input("Nama Watermark:", placeholder="Ketik nama toko di sini...")
-else:
-    watermark_final = st.text_input("Nama Watermark:", value=pilihan_sejarah)
+watermark_final = ""
+if "Ya" in opsi_watermark:
+    pilihan_sejarah = st.selectbox(
+        "Pilih dari Riwayat (Opsional):",
+        options=["(Ketik Baru)"] + st.session_state['riwayat_watermark']
+    )
+
+    if pilihan_sejarah == "(Ketik Baru)":
+        watermark_final = st.text_input("Nama Watermark:", placeholder="Ketik nama toko di sini...")
+    else:
+        watermark_final = st.text_input("Nama Watermark:", value=pilihan_sejarah)
 
 st.write("---")
 
@@ -34,7 +43,7 @@ deskripsi_produk = st.text_area("Deskripsi / Detail Produk", placeholder="Contoh
 
 st.write("---")
 
-# Bagian 3: Detail Ide Spesifik dari Gambar 2 (Fitur Baru)
+# Bagian 3: Detail Ide Spesifik dari Gambar 2
 st.subheader("3. Detail Ide Spesifik dari Gambar 2 (Foto Kompetitor)")
 ide_gambar2 = st.text_area(
     "Ketik ide, detail teknis, atau komponen spesifik apa yang mau diambil dari Gambar 2:",
@@ -43,7 +52,7 @@ ide_gambar2 = st.text_area(
 
 st.write("---")
 
-# Bagian 4: Efek Visual Tambahan (Bisa Centang Banyak)
+# Bagian 4: Efek Visual Tambahan
 st.subheader("4. Efek Visual Tambahan (Opsional)")
 pilihan_efek = st.multiselect(
     "Centang efek estetika untuk background foto (bisa pilih lebih dari satu):",
@@ -100,19 +109,33 @@ st.write("---")
 
 # Tombol Eksekusi
 if st.button("Rakit Teks Prompt", type="primary"):
-    if not watermark_final:
+    # Validasi input
+    if "Ya" in opsi_watermark and not watermark_final:
         st.warning("Mohon isi Nama Watermark terlebih dahulu.")
     elif not judul_produk:
         st.warning("Mohon isi Judul Produk terlebih dahulu.")
     elif not ide_gambar2:
         st.warning("Mohon isi detail ide spesifik dari Gambar 2 terlebih dahulu.")
     else:
-        # Menyimpan nama baru ke riwayat secara otomatis
-        if watermark_final not in st.session_state['riwayat_watermark']:
+        # Menyimpan nama baru ke riwayat secara otomatis jika menggunakan watermark
+        if "Ya" in opsi_watermark and watermark_final not in st.session_state['riwayat_watermark']:
             st.session_state['riwayat_watermark'].append(watermark_final)
             
+        # --- PERSIAPAN LOGIKA WATERMARK ---
+        if "Ya" in opsi_watermark:
+            teks_watermark_prompt1 = f"""4. Teks Promosi & Watermark:
+Tambahkan teks promosi singkat: “BEST QUALITY” dan “READY STOCK”. Gunakan font modern yang mudah dibaca, warna disesuaikan dengan konsep Gambar 3, dan letakkan di posisi yang tepat tanpa menutupi produk utama.
+Tambahkan watermark transparan bertuliskan “{watermark_final}” tepat di area tengah (center) produk. Buat tipis, elegan, dan semi-transparan (opacity rendah) agar menyatu dengan desain. Watermark tidak boleh merusak tampilan produk, namun tetap cukup terbaca sebagai penanda kepemilikan."""
+            
+            teks_watermark_prompt2 = f"""Tambahkan watermark transparan bertuliskan “{watermark_final}” secara tipis dan elegan di area tengah produk. Watermark harus menyatu dengan desain, tetap terlihat, tetapi tidak mengganggu detail produk."""
+        else:
+            teks_watermark_prompt1 = """4. Teks Promosi (Tanpa Watermark):
+Tambahkan teks promosi singkat: “BEST QUALITY” dan “READY STOCK”. Gunakan font modern yang mudah dibaca, warna disesuaikan dengan konsep Gambar 3, dan letakkan di posisi yang tepat tanpa menutupi produk utama. PASTIKAN TIDAK ADA penambahan tulisan watermark teks buatan AI di atas produk (biarkan produk bersih polos/menggunakan logo fisiknya sendiri)."""
+            
+            teks_watermark_prompt2 = """PASTIKAN TIDAK ADA penambahan tulisan watermark teks buatan AI di atas produk (biarkan produk bersih polos/menggunakan logo fisiknya sendiri)."""
+
+        # --- PERAKITAN PROMPT ---
         if "1. Thumbnail Utama" in jenis_prompt:
-            # --- PROMPT 1: THUMBNAIL UTAMA ---
             master_prompt_teks = f"""Edit foto produk menjadi thumbnail Shopee yang estetik, profesional, realistis, dan sangat menjual dengan aturan 3 Gambar berikut:
 - GAMBAR 1 (BAHAN FISIK): Jadikan referensi mutlak untuk anatomi, bentuk, dan detail fisik produk.
 - GAMBAR 2 (IDE KOMPOSISI & REFERENSI DETAIL): Jadikan referensi untuk tata letak (layout) dan mengambil detail spesifik tertentu.
@@ -129,9 +152,7 @@ Tiru gaya penempatan produk secara umum dari GAMBAR 2. SECARA KHUSUS, TERAPKAN I
 "{ide_gambar2}"
 Terapkan ide tersebut dengan rapi, realistis, dan logis pada produk utama. Pastikan hasil akhir tetap clean, elegan, dan fokus utama tetap pada produk.
 
-4. Teks Promosi & Watermark:
-Tambahkan teks promosi singkat: “BEST QUALITY” dan “READY STOCK”. Gunakan font modern yang mudah dibaca, warna disesuaikan dengan konsep Gambar 3, dan letakkan di posisi yang tepat tanpa menutupi produk utama.
-Tambahkan watermark transparan bertuliskan “{watermark_final}” tepat di area tengah (center) produk. Buat tipis, elegan, dan semi-transparan (opacity rendah) agar menyatu dengan desain. Watermark tidak boleh merusak tampilan produk, namun tetap cukup terbaca sebagai penanda kepemilikan.
+{teks_watermark_prompt1}
 
 5. Referensi Teks Produk (Jika ingin dimasukkan ke dalam desain):
 Judul: 
@@ -148,7 +169,6 @@ Kualitas: Sangat tajam, realistis, detail sangat jelas, bersih, tidak pecah, dan
 Hasil yang buram, pecah, gelap, produk berwarna hitam yang detailnya mati/hilang karena kurang cahaya, terlalu ramai, warna berlebihan, bentuk/anatomi produk yang berubah atau terdistorsi, desain terlihat murahan, atau tampilan yang terlalu terlihat seperti gambar kartun/render AI yang tidak realistis."""
 
         else:
-            # --- PROMPT 2: FOTO DETAIL PENDUKUNG ---
             master_prompt_teks = f"""Edit foto produk menjadi foto pendukung detail produk (Close-up) untuk Shopee yang realistis, tajam, dan profesional dengan aturan 3 Gambar berikut:
 - GAMBAR 1 (BAHAN FISIK): Jadikan referensi mutlak untuk anatomi, bentuk, dan detail fisik produk.
 - GAMBAR 2 (IDE KOMPOSISI & REFERENSI DETAIL): Jadikan referensi untuk tata letak (layout), sudut pengambilan gambar, dan detail spesifik.
@@ -170,7 +190,7 @@ Jika perlu, tambahkan teks kecil sebagai penjelas detail, seperti:
 
 Teks harus kecil, rapi, modern, tidak menutupi bagian penting produk, dan tetap selaras dengan desain.
 
-Tambahkan watermark transparan bertuliskan “{watermark_final}” secara tipis dan elegan di area tengah produk. Watermark harus menyatu dengan desain, tetap terlihat, tetapi tidak mengganggu detail produk.
+{teks_watermark_prompt2}
 
 Detail yang ingin ditonjolkan:
 {judul_produk}
@@ -181,5 +201,6 @@ Hasil akhir harus berupa foto pendukung produk rasio 1:1, high resolution minima
 7. HINDARI (Negative Prompt):
 Hasil yang buram, pecah, gelap, produk berwarna hitam yang detailnya mati/hilang karena kurang cahaya, terlalu ramai, warna berlebihan, bentuk/anatomi produk yang berubah atau terdistorsi, desain terlihat murahan, atau tampilan yang terlalu terlihat seperti gambar kartun/render AI yang tidak realistis."""
 
-        st.success(f"Teks prompt berhasil dirakit! Silakan salin di bawah ini:")
+        # Menampilkan teks ke layar
+        st.success("Teks prompt berhasil dirakit! Silakan salin di bawah ini:")
         st.code(master_prompt_teks, language="text")
