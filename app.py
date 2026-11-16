@@ -17,13 +17,14 @@ st.subheader("1. Pengaturan Watermark Toko")
 opsi_watermark = st.radio(
     "Apakah Anda ingin menambahkan watermark teks buatan AI pada gambar?",
     options=[
-        "A. Ya, tambahkan watermark teks transparan", 
-        "B. Tidak perlu (Produk sudah ada logo fisik / Biarkan bersih)"
+        "Pakai watermark teks transparan", 
+        "Tanpa watermark"
     ]
 )
 
+pakai_watermark = opsi_watermark == "Pakai watermark teks transparan"
 watermark_final = ""
-if "Ya" in opsi_watermark:
+if pakai_watermark:
     pilihan_sejarah = st.selectbox(
         "Pilih dari Riwayat (Opsional):",
         options=["(Ketik Baru)"] + st.session_state['riwayat_watermark']
@@ -43,12 +44,23 @@ deskripsi_produk = st.text_area("Deskripsi / Detail Produk", placeholder="Contoh
 
 st.write("---")
 
-# Bagian 3: Detail Ide Spesifik dari Gambar 2
-st.subheader("3. Detail Ide Spesifik dari Gambar 2 (Foto Kompetitor)")
+# Bagian 3: Analisis Gambar 2
+st.subheader("3. Analisis Gambar 2 (Foto Kompetitor)")
+st.caption("Boleh dikosongkan. AI akan menganalisis Gambar 2 dan memilih detail visual yang cocok untuk produk Anda.")
 ide_gambar2 = st.text_area(
-    "Ketik ide, detail teknis, atau komponen spesifik apa yang mau diambil dari Gambar 2:",
-    placeholder="Contoh: Ambil ide posisi tata letak kabel yang melingkar rapi di samping produk, serta perjelas detail terminal sekrup presisinya..."
+    "Catatan khusus untuk AI (opsional)",
+    placeholder="Contoh: Utamakan cara foto menonjolkan tekstur produk."
+).strip()
+
+instruksi_gambar2 = (
+    "Analisis GAMBAR 2 dan pilih sendiri detail visual yang membantu pembeli memahami produk, "
+    "misalnya bagian yang ditonjolkan, cara menata produk, atau cara memperlihatkan tekstur. "
+    "Gunakan hanya ide yang sesuai dengan produk di GAMBAR 1 dan pilihan angle. "
+    "Gunakan data produk yang diberikan untuk klaim ukuran, spesifikasi, dan kompatibilitas. "
+    "Jangan menyalin logo, watermark, teks promosi, atau komponen fisik dari foto kompetitor."
 )
+if ide_gambar2:
+    instruksi_gambar2 += f'\nPertimbangkan catatan pengguna saat memilih detail: "{ide_gambar2}"'
 
 st.write("---")
 
@@ -110,28 +122,26 @@ st.write("---")
 # Tombol Eksekusi
 if st.button("Rakit Teks Prompt", type="primary"):
     # Validasi input
-    if "Ya" in opsi_watermark and not watermark_final:
+    if pakai_watermark and not watermark_final:
         st.warning("Mohon isi Nama Watermark terlebih dahulu.")
     elif not judul_produk:
         st.warning("Mohon isi Judul Produk terlebih dahulu.")
-    elif not ide_gambar2:
-        st.warning("Mohon isi detail ide spesifik dari Gambar 2 terlebih dahulu.")
     else:
         # Menyimpan nama baru ke riwayat secara otomatis jika menggunakan watermark
-        if "Ya" in opsi_watermark and watermark_final not in st.session_state['riwayat_watermark']:
+        if pakai_watermark and watermark_final not in st.session_state['riwayat_watermark']:
             st.session_state['riwayat_watermark'].append(watermark_final)
             
         # --- PERSIAPAN LOGIKA WATERMARK ---
-        if "Ya" in opsi_watermark:
+        if pakai_watermark:
             teks_watermark_prompt1 = f"""4. Watermark:
 Tambahkan watermark transparan bertuliskan “{watermark_final}” tepat di area tengah (center) produk. Buat tipis, elegan, dan semi-transparan (opacity rendah) agar menyatu dengan desain. Watermark tidak boleh merusak tampilan produk, namun tetap cukup terbaca sebagai penanda kepemilikan."""
             
             teks_watermark_prompt2 = f"""Tambahkan watermark transparan bertuliskan “{watermark_final}” secara tipis dan elegan di area tengah produk. Watermark harus menyatu dengan desain, tetap terlihat, tetapi tidak mengganggu detail produk."""
         else:
             teks_watermark_prompt1 = """4. Watermark:
-PASTIKAN TIDAK ADA penambahan tulisan watermark teks buatan AI di atas produk (biarkan produk bersih polos/menggunakan logo fisiknya sendiri)."""
+Hasilkan gambar tanpa watermark tambahan di area mana pun. Pertahankan logo atau label fisik yang memang ada pada produk di GAMBAR 1."""
             
-            teks_watermark_prompt2 = """PASTIKAN TIDAK ADA penambahan tulisan watermark teks buatan AI di atas produk (biarkan produk bersih polos/menggunakan logo fisiknya sendiri)."""
+            teks_watermark_prompt2 = """Hasilkan gambar tanpa watermark tambahan di area mana pun. Pertahankan logo atau label fisik yang memang ada pada produk di GAMBAR 1."""
 
         # --- PERAKITAN PROMPT ---
         if "1. Thumbnail Utama" in jenis_prompt:
@@ -147,8 +157,7 @@ Buat objek produk (dari Gambar 1) terlihat lebih nyata, tajam, bersih, detail, p
 Gunakan background yang clean, modern, cerah, estetik, dan mewah dengan mengikuti warna dan nuansa GAMBAR 3 dengan pembagian warna panggung sesuai Bagian 8. Terapkan pencahayaan studio (studio lighting) yang lembut namun tegas, dengan fill light tambahan yang mengarah ke area produk yang berwarna gelap/hitam. Tambahkan bayangan halus (drop shadow) di bawah produk agar terlihat memiliki kedalaman, tidak melayang, dan lebih hidup.{teks_efek_tambahan}
 
 3. Komposisi & Penerapan Ide Spesifik dari Gambar 2:
-Gunakan GAMBAR 2 sebagai referensi komposisi dengan tata letak akhir mengikuti Bagian 8. SECARA KHUSUS, TERAPKAN IDE DAN DETAIL BERIKUT DARI GAMBAR 2 KE DALAM HASIL AKHIR:
-"{ide_gambar2}"
+Gunakan GAMBAR 2 sebagai referensi komposisi dengan tata letak akhir mengikuti Bagian 8. {instruksi_gambar2}
 Terapkan ide tersebut dengan rapi, realistis, dan logis pada produk utama. Pastikan hasil akhir tetap clean, elegan, dan fokus utama tetap pada produk.
 
 {teks_watermark_prompt1}
@@ -181,45 +190,3 @@ Terapkan tata letak e-commerce profesional yang rapi, bersih, dan terorganisir d
 
 - Bagian Bawah (Panel Kompatibilitas / Spesifikasi): Buat panel horizontal putih bersudut membulat dengan garis tepi hitam atau biru gelap. Bagi panel menjadi dua kolom dengan satu garis vertikal tipis.
   * Kolom kiri: Tampilkan foto atau ilustrasi perangkat yang kompatibel secara berdampingan, tajam, dan proporsional. Gunakan Gambar 2 sebagai referensi visual perangkat.
-  * Kolom kanan: Tampilkan “COCOK UNTUK [NAMA PERANGKAT]” pada baris pertama, lalu daftar merek atau tipe yang tercantum pada Referensi Teks di baris kedua. Jika data kompatibilitas kosong, gunakan spesifikasi produk yang tercantum pada Referensi Teks.
-
-- Detail Teknis & Callout (Opsional): Jika ada ukuran atau fungsi spesifik pada Gambar 2 atau Referensi Teks, tampilkan dengan garis penunjuk atau panah yang rapi di ruang kosong sekitar produk. Jaga agar teks dan garis penunjuk tidak menutupi objek utama.
-
-- Watermark & Efek: Ikuti instruksi watermark pada Bagian 4. Jika watermark diaktifkan, sesuaikan perspektif tulisan dengan permukaan depan atau tengah produk. Jika efek visual tambahan dipilih, buat efeknya halus dan menyatu dengan latar agar teks dan panel informasi tetap mudah dibaca."""
-
-        else:
-            master_prompt_teks = f"""Edit foto produk menjadi foto pendukung detail produk (Close-up) untuk Shopee yang realistis, tajam, dan profesional dengan aturan 3 Gambar berikut:
-- GAMBAR 1 (BAHAN FISIK): Jadikan referensi mutlak untuk anatomi, bentuk, dan detail fisik produk.
-- GAMBAR 2 (IDE KOMPOSISI & REFERENSI DETAIL): Jadikan referensi untuk tata letak (layout), sudut pengambilan gambar, dan detail spesifik.
-- GAMBAR 3 (DNA TOKO): Jadikan referensi mutlak untuk gaya visual, nuansa desain, warna background, dan pencahayaan agar tetap satu paket dengan etalase.
-
-Tonjolkan bagian penting produk dari GAMBAR 1 secara jelas dan realistis, seperti kabel, lubang baut, as, konektor, gear, body produk, tekstur material. Khusus untuk area berwarna hitam/gelap, tingkatkan kecerahan agar teksturnya tetap terlihat sangat jelas.
-
-{teks_angle_instruksi} Gunakan ide angle dari GAMBAR 2 sebagai referensi close-up yang informatif. Produk boleh ditampilkan lebih dekat, tetapi jangan sampai terlalu terpotong berlebihan. 
-
-SECARA KHUSUS, TERAPKAN IDE DAN DETAIL BERIKUT DARI GAMBAR 2 KE DALAM HASIL AKHIR:
-"{ide_gambar2}"
-
-Jangan mengubah bentuk asli produk, warna asli produk, jumlah kabel, posisi lubang baut, ukuran proporsional, panjang as, konektor, maupun detail fisik lainnya dari GAMBAR 1. Semua bagian produk harus tetap mutlak realistis dan sesuai barang asli.
-
-Komposisi harus tetap clean dan modern mengikuti GAMBAR 2. Background harus MENYAMAKAN 100% konsep warna dan nuansa dari GAMBAR 3 agar seluruh foto produk terlihat konsisten dalam satu etalase. Gunakan pencahayaan studio yang lembut namun tegas.{teks_efek_tambahan}
-
-Jika perlu, tambahkan teks kecil sebagai penjelas detail, seperti:
-“{judul_produk}”
-
-Teks harus kecil, rapi, modern, tidak menutupi bagian penting produk, dan tetap selaras dengan desain.
-
-{teks_watermark_prompt2}
-
-Detail yang ingin ditonjolkan:
-{judul_produk}
-{deskripsi_produk}
-
-Hasil akhir harus berupa foto pendukung produk rasio 1:1, high resolution minimal 2K, sangat tajam, realistis, bersih, tidak blur, tidak pecah, dan cocok sebagai foto kedua, ketiga, atau seterusnya di etalase Shopee.
-
-7. HINDARI (Negative Prompt):
-Hasil yang buram, pecah, gelap, produk berwarna hitam yang detailnya mati/hilang karena kurang cahaya, terlalu ramai, warna berlebihan, bentuk/anatomi produk yang berubah atau terdistorsi, desain terlihat murahan, atau tampilan yang terlalu terlihat seperti gambar kartun/render AI yang tidak realistis."""
-
-        # Menampilkan teks ke layar
-        st.success("Teks prompt berhasil dirakit! Silakan salin di bawah ini:")
-        st.code(master_prompt_teks, language="text")
