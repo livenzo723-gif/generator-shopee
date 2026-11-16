@@ -190,3 +190,44 @@ Terapkan tata letak e-commerce profesional yang rapi, bersih, dan terorganisir d
 
 - Bagian Bawah (Panel Kompatibilitas / Spesifikasi): Buat panel horizontal putih bersudut membulat dengan garis tepi hitam atau biru gelap. Bagi panel menjadi dua kolom dengan satu garis vertikal tipis.
   * Kolom kiri: Tampilkan foto atau ilustrasi perangkat yang kompatibel secara berdampingan, tajam, dan proporsional. Gunakan Gambar 2 sebagai referensi visual perangkat.
+  * Kolom kanan: Tampilkan “COCOK UNTUK [NAMA PERANGKAT]” pada baris pertama, lalu daftar merek atau tipe yang tercantum pada Referensi Teks di baris kedua. Jika data kompatibilitas kosong, gunakan spesifikasi produk yang tercantum pada Referensi Teks.
+
+- Detail Teknis & Callout (Opsional): Jika ada ukuran atau fungsi spesifik pada Gambar 2 atau Referensi Teks, tampilkan dengan garis penunjuk atau panah yang rapi di ruang kosong sekitar produk. Jaga agar teks dan garis penunjuk tidak menutupi objek utama.
+
+- Watermark & Efek: Ikuti instruksi watermark pada Bagian 4. Jika watermark diaktifkan, sesuaikan perspektif tulisan dengan permukaan depan atau tengah produk. Jika efek visual tambahan dipilih, buat efeknya halus dan menyatu dengan latar agar teks dan panel informasi tetap mudah dibaca."""
+
+        else:
+            master_prompt_teks = f"""Edit foto produk menjadi foto pendukung detail produk (Close-up) untuk Shopee yang realistis, tajam, dan profesional dengan aturan 3 Gambar berikut:
+- GAMBAR 1 (BAHAN FISIK): Jadikan referensi mutlak untuk anatomi, bentuk, dan detail fisik produk.
+- GAMBAR 2 (IDE KOMPOSISI & REFERENSI DETAIL): Jadikan referensi untuk tata letak (layout), sudut pengambilan gambar, dan detail spesifik.
+- GAMBAR 3 (DNA TOKO): Jadikan referensi mutlak untuk gaya visual, nuansa desain, warna background, dan pencahayaan agar tetap satu paket dengan etalase.
+
+Tonjolkan bagian penting produk dari GAMBAR 1 secara jelas dan realistis, seperti kabel, lubang baut, as, konektor, gear, body produk, tekstur material. Khusus untuk area berwarna hitam/gelap, tingkatkan kecerahan agar teksturnya tetap terlihat sangat jelas.
+
+{teks_angle_instruksi} Gunakan ide angle dari GAMBAR 2 sebagai referensi close-up yang informatif. Produk boleh ditampilkan lebih dekat, tetapi jangan sampai terlalu terpotong berlebihan. 
+
+{instruksi_gambar2}
+
+Jangan mengubah bentuk asli produk, warna asli produk, jumlah kabel, posisi lubang baut, ukuran proporsional, panjang as, konektor, maupun detail fisik lainnya dari GAMBAR 1. Semua bagian produk harus tetap mutlak realistis dan sesuai barang asli.
+
+Komposisi harus tetap clean dan modern mengikuti GAMBAR 2. Background harus MENYAMAKAN 100% konsep warna dan nuansa dari GAMBAR 3 agar seluruh foto produk terlihat konsisten dalam satu etalase. Gunakan pencahayaan studio yang lembut namun tegas.{teks_efek_tambahan}
+
+Jika perlu, tambahkan teks kecil sebagai penjelas detail, seperti:
+“{judul_produk}”
+
+Teks harus kecil, rapi, modern, tidak menutupi bagian penting produk, dan tetap selaras dengan desain.
+
+{teks_watermark_prompt2}
+
+Detail yang ingin ditonjolkan:
+{judul_produk}
+{deskripsi_produk}
+
+Hasil akhir harus berupa foto pendukung produk rasio 1:1, high resolution minimal 2K, sangat tajam, realistis, bersih, tidak blur, tidak pecah, dan cocok sebagai foto kedua, ketiga, atau seterusnya di etalase Shopee.
+
+7. HINDARI (Negative Prompt):
+Hasil yang buram, pecah, gelap, produk berwarna hitam yang detailnya mati/hilang karena kurang cahaya, terlalu ramai, warna berlebihan, bentuk/anatomi produk yang berubah atau terdistorsi, desain terlihat murahan, atau tampilan yang terlalu terlihat seperti gambar kartun/render AI yang tidak realistis."""
+
+        # Menampilkan teks ke layar
+        st.success("Teks prompt berhasil dirakit! Silakan salin di bawah ini:")
+        st.code(master_prompt_teks, language="text")
