@@ -17,14 +17,13 @@ st.subheader("1. Pengaturan Watermark Toko")
 opsi_watermark = st.radio(
     "Apakah Anda ingin menambahkan watermark teks buatan AI pada gambar?",
     options=[
-        "Pakai watermark teks transparan", 
-        "Tanpa watermark"
+        "A. Ya, tambahkan watermark teks transparan",
+        "B. Tidak perlu (Produk sudah ada logo fisik / Biarkan bersih)"
     ]
 )
 
-pakai_watermark = opsi_watermark == "Pakai watermark teks transparan"
 watermark_final = ""
-if pakai_watermark:
+if "Ya" in opsi_watermark:
     pilihan_sejarah = st.selectbox(
         "Pilih dari Riwayat (Opsional):",
         options=["(Ketik Baru)"] + st.session_state['riwayat_watermark']
@@ -44,23 +43,12 @@ deskripsi_produk = st.text_area("Deskripsi / Detail Produk", placeholder="Contoh
 
 st.write("---")
 
-# Bagian 3: Analisis Gambar 2
-st.subheader("3. Analisis Gambar 2 (Foto Kompetitor)")
-st.caption("Boleh dikosongkan. AI akan menganalisis Gambar 2 dan memilih detail visual yang cocok untuk produk Anda.")
+# Bagian 3: Detail Ide Spesifik dari Gambar 2
+st.subheader("3. Detail Ide Spesifik dari Gambar 2 (Foto Kompetitor)")
 ide_gambar2 = st.text_area(
-    "Catatan khusus untuk AI (opsional)",
-    placeholder="Contoh: Utamakan cara foto menonjolkan tekstur produk."
-).strip()
-
-instruksi_gambar2 = (
-    "Analisis GAMBAR 2 dan pilih sendiri detail visual yang membantu pembeli memahami produk, "
-    "misalnya bagian yang ditonjolkan, cara menata produk, atau cara memperlihatkan tekstur. "
-    "Gunakan hanya ide yang sesuai dengan produk di GAMBAR 1 dan pilihan angle. "
-    "Gunakan data produk yang diberikan untuk klaim ukuran, spesifikasi, dan kompatibilitas. "
-    "Jangan menyalin logo, watermark, teks promosi, atau komponen fisik dari foto kompetitor."
+    "Ketik ide, detail teknis, atau komponen spesifik apa yang mau diambil dari Gambar 2:",
+    placeholder="Contoh: Ambil ide posisi tata letak kabel yang melingkar rapi di samping produk, serta perjelas detail terminal sekrup presisinya..."
 )
-if ide_gambar2:
-    instruksi_gambar2 += f'\nPertimbangkan catatan pengguna saat memilih detail: "{ide_gambar2}"'
 
 st.write("---")
 
@@ -95,7 +83,7 @@ st.subheader("5. Opsi Sudut Pandang (Angle) Produk")
 pilihan_angle = st.radio(
     "Pilih perlakuan angle untuk produk Anda:",
     options=[
-        "A. Gunakan Angle Asli (Paling Aman, anti berubah bentuk)", 
+        "A. Gunakan Angle Asli (Paling Aman, anti berubah bentuk)",
         "B. Ubah Angle Dinamis (Beresiko, cocok untuk bentuk sederhana)"
     ]
 )
@@ -112,7 +100,7 @@ st.subheader("6. Pilih Jenis Prompt")
 jenis_prompt = st.radio(
     "Mau merakit prompt untuk gambar yang mana?",
     options=[
-        "1. Thumbnail Utama", 
+        "1. Thumbnail Utama",
         "2. Foto Detail Pendukung (Close-up)"
     ]
 )
@@ -120,28 +108,35 @@ jenis_prompt = st.radio(
 st.write("---")
 
 # Tombol Eksekusi
+watermark_final = watermark_final.strip()
+judul_produk = judul_produk.strip()
+ide_gambar2 = ide_gambar2.strip()
+
 if st.button("Rakit Teks Prompt", type="primary"):
     # Validasi input
-    if pakai_watermark and not watermark_final:
+    if "Ya" in opsi_watermark and not watermark_final:
         st.warning("Mohon isi Nama Watermark terlebih dahulu.")
     elif not judul_produk:
         st.warning("Mohon isi Judul Produk terlebih dahulu.")
+    elif not ide_gambar2:
+        st.warning("Mohon isi detail ide spesifik dari Gambar 2 terlebih dahulu.")
     else:
         # Menyimpan nama baru ke riwayat secara otomatis jika menggunakan watermark
-        if pakai_watermark and watermark_final not in st.session_state['riwayat_watermark']:
+        if "Ya" in opsi_watermark and watermark_final not in st.session_state['riwayat_watermark']:
             st.session_state['riwayat_watermark'].append(watermark_final)
-            
+
         # --- PERSIAPAN LOGIKA WATERMARK ---
-        if pakai_watermark:
-            teks_watermark_prompt1 = f"""4. Watermark:
+        if "Ya" in opsi_watermark:
+            teks_watermark_prompt1 = f"""4. Teks Promosi & Watermark:
+Tambahkan teks promosi singkat: “BEST QUALITY” dan “READY STOCK”. Gunakan font modern yang mudah dibaca, warna disesuaikan dengan konsep Gambar 3, dan letakkan di posisi yang tepat tanpa menutupi produk utama.
 Tambahkan watermark transparan bertuliskan “{watermark_final}” tepat di area tengah (center) produk. Buat tipis, elegan, dan semi-transparan (opacity rendah) agar menyatu dengan desain. Watermark tidak boleh merusak tampilan produk, namun tetap cukup terbaca sebagai penanda kepemilikan."""
-            
+
             teks_watermark_prompt2 = f"""Tambahkan watermark transparan bertuliskan “{watermark_final}” secara tipis dan elegan di area tengah produk. Watermark harus menyatu dengan desain, tetap terlihat, tetapi tidak mengganggu detail produk."""
         else:
-            teks_watermark_prompt1 = """4. Watermark:
-Hasilkan gambar tanpa watermark tambahan di area mana pun. Pertahankan logo atau label fisik yang memang ada pada produk di GAMBAR 1."""
-            
-            teks_watermark_prompt2 = """Hasilkan gambar tanpa watermark tambahan di area mana pun. Pertahankan logo atau label fisik yang memang ada pada produk di GAMBAR 1."""
+            teks_watermark_prompt1 = """4. Teks Promosi (Tanpa Watermark):
+Tambahkan teks promosi singkat: “BEST QUALITY” dan “READY STOCK”. Gunakan font modern yang mudah dibaca, warna disesuaikan dengan konsep Gambar 3, dan letakkan di posisi yang tepat tanpa menutupi produk utama. PASTIKAN TIDAK ADA penambahan tulisan watermark teks buatan AI di atas produk (biarkan produk bersih polos/menggunakan logo fisiknya sendiri)."""
+
+            teks_watermark_prompt2 = """PASTIKAN TIDAK ADA penambahan tulisan watermark teks buatan AI di atas produk (biarkan produk bersih polos/menggunakan logo fisiknya sendiri)."""
 
         # --- PERAKITAN PROMPT ---
         if "1. Thumbnail Utama" in jenis_prompt:
@@ -154,18 +149,19 @@ Hasilkan gambar tanpa watermark tambahan di area mana pun. Pertahankan logo atau
 Buat objek produk (dari Gambar 1) terlihat lebih nyata, tajam, bersih, detail, presisi, dan menonjol. {teks_angle_instruksi} PENTING: Khusus untuk produk atau bagian produk yang berwarna HITAM, tingkatkan kecerahan (brightness/exposure) dan perjelas detail teksturnya agar lekukan, bentuk, dan materialnya terlihat sangat cerah, jelas, dan tidak gelap/tenggelam. JANGAN mengubah bentuk asli produk, ukuran proporsional, jumlah kabel, tulisan pada label, maupun detail fisik lainnya dari Gambar 1.
 
 2. Background, Pencahayaan & Efek:
-Gunakan background yang clean, modern, cerah, estetik, dan mewah dengan mengikuti warna dan nuansa GAMBAR 3 dengan pembagian warna panggung sesuai Bagian 8. Terapkan pencahayaan studio (studio lighting) yang lembut namun tegas, dengan fill light tambahan yang mengarah ke area produk yang berwarna gelap/hitam. Tambahkan bayangan halus (drop shadow) di bawah produk agar terlihat memiliki kedalaman, tidak melayang, dan lebih hidup.{teks_efek_tambahan}
+Gunakan background yang clean, modern, cerah, estetik, dan mewah dengan MENYAMAKAN 100% konsep warna dan nuansa dari GAMBAR 3. Terapkan pencahayaan studio (studio lighting) yang lembut namun tegas, dengan fill light tambahan yang mengarah ke area produk yang berwarna gelap/hitam. Tambahkan bayangan halus (drop shadow) di bawah produk agar terlihat memiliki kedalaman, tidak melayang, dan lebih hidup.{teks_efek_tambahan}
 
 3. Komposisi & Penerapan Ide Spesifik dari Gambar 2:
-Gunakan GAMBAR 2 sebagai referensi komposisi dengan tata letak akhir mengikuti Bagian 8. {instruksi_gambar2}
+Tiru gaya penempatan produk secara umum dari GAMBAR 2. SECARA KHUSUS, TERAPKAN IDE DAN DETAIL BERIKUT DARI GAMBAR 2 KE DALAM HASIL AKHIR:
+"{ide_gambar2}"
 Terapkan ide tersebut dengan rapi, realistis, dan logis pada produk utama. Pastikan hasil akhir tetap clean, elegan, dan fokus utama tetap pada produk.
 
 {teks_watermark_prompt1}
 
-5. Referensi Teks Produk untuk judul dan panel informasi:
-Judul: 
+5. Referensi Teks Produk (Jika ingin dimasukkan ke dalam desain):
+Judul:
 [{judul_produk}]
-Spesifikasi: 
+Spesifikasi:
 {deskripsi_produk}
 
 6. Spesifikasi Output Akhir:
@@ -174,27 +170,7 @@ Resolusi: High Resolution minimal 2K (2048 x 2048 px).
 Kualitas: Sangat tajam, realistis, detail sangat jelas, bersih, tidak pecah, dan tidak blur.
 
 7. HINDARI (Negative Prompt):
-Hasil yang buram, pecah, gelap, produk berwarna hitam yang detailnya mati/hilang karena kurang cahaya, terlalu ramai, warna berlebihan, bentuk/anatomi produk yang berubah atau terdistorsi, desain terlihat murahan, atau tampilan yang terlalu terlihat seperti gambar kartun/render AI yang tidak realistis.
-
-8. INSTRUKSI SPESIFIKASI TATA LETAK & GAYA VISUAL TAMBAHAN (PRIORITAS EKSEKUSI):
-
-Terapkan tata letak e-commerce profesional yang rapi, bersih, dan terorganisir dengan pembagian area visual berikut. Gunakan bagian ini sebagai acuan utama untuk posisi judul, produk, badge, dan panel bawah. Pertahankan bentuk asli produk dari Gambar 1 serta pilihan angle yang sudah ditetapkan.
-
-- Latar Belakang & Panggung Produk: Gunakan latar belakang bagian atas sesuai warna DNA toko (Gambar 3), dengan gradasi studio halus yang menyatu dengan permukaan lantai atau meja berwarna netral terang (krem muda atau putih hangat) di bagian tengah hingga bawah. Posisikan produk utama dari Gambar 1 di area tengah dengan bayangan kontak yang halus dan realistis di atas permukaan panggung.
-
-- Pojok Kiri Atas (Branding): Tempatkan tab putih bersudut melengkung yang menyatu dengan tepi atas dan kiri. Gunakan logo atau identitas toko yang terlihat pada Gambar 3.
-
-- Bagian Atas (Judul Utama): Tampilkan judul sesuai nama produk pada Referensi Teks. Gunakan huruf sans-serif ekstra tebal berwarna putih dengan garis tepi hitam tebal dan bayangan halus agar judul mudah dibaca.
-
-- Area Kanan Tengah (Badge Informasi): Susun dua badge berbentuk kapsul secara vertikal di ruang kosong sebelah kanan produk. Gunakan latar putih, garis tepi hitam atau biru gelap, dan teks tebal berwarna gelap. Isi badge atas dengan “BEST QUALITY” atau “ISI 1 PCS” jika produk memang dijual satuan. Isi badge bawah dengan “READY STOCK!”. Sisakan jarak agar badge tidak menutupi produk.
-
-- Bagian Bawah (Panel Kompatibilitas / Spesifikasi): Buat panel horizontal putih bersudut membulat dengan garis tepi hitam atau biru gelap. Bagi panel menjadi dua kolom dengan satu garis vertikal tipis.
-  * Kolom kiri: Tampilkan foto atau ilustrasi perangkat yang kompatibel secara berdampingan, tajam, dan proporsional. Gunakan Gambar 2 sebagai referensi visual perangkat.
-  * Kolom kanan: Tampilkan “COCOK UNTUK [NAMA PERANGKAT]” pada baris pertama, lalu daftar merek atau tipe yang tercantum pada Referensi Teks di baris kedua. Jika data kompatibilitas kosong, gunakan spesifikasi produk yang tercantum pada Referensi Teks.
-
-- Detail Teknis & Callout (Opsional): Jika ada ukuran atau fungsi spesifik pada Gambar 2 atau Referensi Teks, tampilkan dengan garis penunjuk atau panah yang rapi di ruang kosong sekitar produk. Jaga agar teks dan garis penunjuk tidak menutupi objek utama.
-
-- Watermark & Efek: Ikuti instruksi watermark pada Bagian 4. Jika watermark diaktifkan, sesuaikan perspektif tulisan dengan permukaan depan atau tengah produk. Jika efek visual tambahan dipilih, buat efeknya halus dan menyatu dengan latar agar teks dan panel informasi tetap mudah dibaca."""
+Hasil yang buram, pecah, gelap, produk berwarna hitam yang detailnya mati/hilang karena kurang cahaya, terlalu ramai, warna berlebihan, bentuk/anatomi produk yang berubah atau terdistorsi, desain terlihat murahan, atau tampilan yang terlalu terlihat seperti gambar kartun/render AI yang tidak realistis."""
 
         else:
             master_prompt_teks = f"""Edit foto produk menjadi foto pendukung detail produk (Close-up) untuk Shopee yang realistis, tajam, dan profesional dengan aturan 3 Gambar berikut:
@@ -204,9 +180,10 @@ Terapkan tata letak e-commerce profesional yang rapi, bersih, dan terorganisir d
 
 Tonjolkan bagian penting produk dari GAMBAR 1 secara jelas dan realistis, seperti kabel, lubang baut, as, konektor, gear, body produk, tekstur material. Khusus untuk area berwarna hitam/gelap, tingkatkan kecerahan agar teksturnya tetap terlihat sangat jelas.
 
-{teks_angle_instruksi} Gunakan ide angle dari GAMBAR 2 sebagai referensi close-up yang informatif. Produk boleh ditampilkan lebih dekat, tetapi jangan sampai terlalu terpotong berlebihan. 
+{teks_angle_instruksi} Gunakan GAMBAR 2 sebagai referensi komposisi close-up. Produk boleh ditampilkan lebih dekat, tetapi jangan sampai terlalu terpotong berlebihan.
 
-{instruksi_gambar2}
+SECARA KHUSUS, TERAPKAN IDE DAN DETAIL BERIKUT DARI GAMBAR 2 KE DALAM HASIL AKHIR:
+"{ide_gambar2}"
 
 Jangan mengubah bentuk asli produk, warna asli produk, jumlah kabel, posisi lubang baut, ukuran proporsional, panjang as, konektor, maupun detail fisik lainnya dari GAMBAR 1. Semua bagian produk harus tetap mutlak realistis dan sesuai barang asli.
 
